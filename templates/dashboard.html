@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Test Dashboard — Frankfurter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --pass: #3fb950;
+            --fail: #f85149;
+            --error: #d29922;
+            --accent: #58a6ff;
+            --accent2: #bc8cff;
+            --grad: linear-gradient(135deg, #1f6feb 0%, #bc8cff 100%);
+        }
+
+        .text-pass {
+            color: var(--pass);
+        }
+
+        .text-fail {
+            color: var(--fail);
+        }
+
+        .text-error {
+            color: var(--error);
+        }
+
+        .text-muted {
+            color: var(--muted);
+        }
+
+        .text-accent {
+            color: var(--accent);
+        }
+
+        .fw-600 {
+            font-weight: 600;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--grad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .logo span {
+            font-size: .8rem;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        nav {
+            display: flex;
+            gap: .5rem;
+        }
+
+        nav a {
+            padding: .4rem .9rem;
+            border-radius: 6px;
+            font-size: .85rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all .2s;
+        }
+
+        .btn-run {
+            background: var(--grad);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(88, 166, 255, .25);
+        }
+
+        .btn-run:hover {
+            opacity: .85;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .btn-outline:hover {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+
+        /* ── Main Layout ── */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ── No Data Banner ── */
+        .no-data {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--muted);
+        }
+
+        .no-data .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-data p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Section Heading ── */
+        .section-title {
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        /* ── KPI Cards ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.25rem 1rem;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+        }
+
+        .kpi-label {
+            font-size: .75rem;
+            color: var(--muted);
+            margin-bottom: .5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .kpi-sub {
+            font-size: .7rem;
+            color: var(--muted);
+            margin-top: .3rem;
+        }
+
+        .kpi-pass .kpi-value {
+            color: var(--pass);
+        }
+
+        .kpi-fail .kpi-value {
+            color: var(--fail);
+        }
+
+        .kpi-lat .kpi-value {
+            color: var(--accent);
+        }
+
+        .kpi-avail .kpi-value {
+            color: var(--accent2);
+        }
+
+        /* ── Progress bar ── */
+        .progress-bar-wrap {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: .75rem;
+        }
+
+        .bar-track {
+            height: 10px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .bar-pass {
+            height: 100%;
+            background: var(--pass);
+            border-radius: 99px;
+            transition: width .8s ease;
+        }
+
+        .bar-fail {
+            height: 100%;
+            background: var(--fail);
+        }
+
+        /* ── Latest Run tests table ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            padding: .9rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h2 {
+            font-size: .95rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: .6rem 1.25rem;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: .75rem 1.25rem;
+            font-size: .85rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, .02);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .2rem .65rem;
+            border-radius: 99px;
+            font-size: .75rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .badge-pass {
+            background: rgba(63, 185, 80, .15);
+            color: var(--pass);
+            border: 1px solid rgba(63, 185, 80, .3);
+        }
+
+        .badge-fail {
+            background: rgba(248, 81, 73, .15);
+            color: var(--fail);
+            border: 1px solid rgba(248, 81, 73, .3);
+        }
+
+        .badge-error {
+            background: rgba(210, 153, 34, .15);
+            color: var(--error);
+            border: 1px solid rgba(210, 153, 34, .3);
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .8rem;
+        }
+
+        .details-cell {
+            color: var(--muted);
+            font-size: .78rem;
+            max-width: 280px;
+            word-break: break-word;
+        }
+
+        /* ── History table ── */
+        .history-table td .ts {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        /* ── Latency Trend Chart ── */
+        .chart-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        canvas {
+            width: 100% !important;
+        }
+
+        /* ── Meta info bar ── */
+        .meta-bar {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: .78rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+            padding: .75rem 1rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .meta-bar strong {
+            color: var(--text);
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: .75rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Header ─────────────────────────────────── -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">📡</div>
+            <div>
+                <h1>API Test Dashboard</h1>
+                <span>Frankfurter — Taux de Change</span>
+            </div>
+        </div>
+        <nav>
+            <a href="/run" class="btn-run">▶ Lancer un Run</a>
+            <a href="/health" class="btn-outline" target="_blank">💚 Health</a>
+            <a href="/export" class="btn-outline">⬇ Export JSON</a>
+        </nav>
+    </header>
+
+    <!-- ── Main ──────────────────────────────────── -->
+    <main>
+
+        {% if not latest %}
+        <div class="no-data">
+            <div class="icon">🔍</div>
+            <p>Aucun run disponible pour le moment.</p>
+            <a href="/run" class="btn-run"
+                style="display: inline-block; padding: .6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; background: linear-gradient(135deg, #1f6feb, #bc8cff); color: #fff;">
+                ▶ Lancer le premier run
+            </a>
+        </div>
+
+        {% else %}
+
+        <!-- Meta bar -->
+        <div class="meta-bar">
+            <span>🕐 Dernier run : <strong>{{ latest.timestamp | replace("T"," ") | truncate(19, True, '') }}
+                    UTC</strong></span>
+            <span>🆔 Run #<strong>{{ latest.id }}</strong></span>
+            <span>📊 Total tests : <strong>{{ latest.passed + latest.failed + latest.errors }}</strong></span>
+            <span>📈 Disponibilité : <strong>{{ "%.1f"|format(latest.availability * 100) }}%</strong></span>
+        </div>
+
+        <!-- KPI Cards -->
+        <p class="section-title">Métriques du dernier run</p>
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-pass">
+                <div class="kpi-label">✅ Tests passés</div>
+                <div class="kpi-value">{{ latest.passed }}</div>
+                <div class="kpi-sub">sur {{ latest.passed + latest.failed + latest.errors }} total</div>
+            </div>
+            <div class="kpi-card kpi-fail">
+                <div class="kpi-label">❌ Échoués</div>
+                <div class="kpi-value">{{ latest.failed }}</div>
+                <div class="kpi-sub">taux : {{ "%.1f"|format(latest.error_rate * 100) }}%</div>
+            </div>
+            <div class="kpi-card kpi-lat">
+                <div class="kpi-label">⚡ Latence moy.</div>
+                <div class="kpi-value">{{ latest.latency_avg|int }}<span style="font-size: .9rem; font-weight: 400;">
+                        ms</span></div>
+                <div class="kpi-sub">p95 : {{ latest.latency_p95|int }} ms</div>
+            </div>
+            <div class="kpi-card kpi-avail">
+                <div class="kpi-label">🟢 Disponibilité</div>
+                <div class="kpi-value">{{ "%.0f"|format(latest.availability * 100) }}<span
+                        style="font-size: .9rem; font-weight: 400;">%</span></div>
+                <div class="kpi-sub">dernier run</div>
+            </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-label">
+                <span>Résultats du run</span>
+                <span>{{ latest.passed }} PASS / {{ latest.failed + latest.errors }} KO</span>
+            </div>
+            {% set total = latest.passed + latest.failed + latest.errors %}
+            {% set pct = (latest.passed / total * 100) if total > 0 else 0 %}
+            <div class="bar-track">
+                <div class="bar-pass" data-pct="{{ pct }}"></div>
+                <div class="bar-fail" data-pct="{{ 100 - pct }}"></div>
+            </div>
+        </div>
+
+        <!-- Latest test results -->
+        <div class="card" style="margin-bottom:2rem;">
+            <div class="card-header">
+                <h2>🧪 Détail des tests — Run #{{ latest.id }}</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom du test</th>
+                        <th>Statut</th>
+                        <th>Latence</th>
+                        <th>Détails</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in latest_tests %}
+                    <tr>
+                        <td class="mono text-muted">{{ loop.index }}</td>
+                        <td>{{ t.name }}</td>
+                        <td>
+                            {% if t.status == "PASS" %}
+                            <span class="badge badge-pass">✓ PASS</span>
+                            {% elif t.status == "FAIL" %}
+                            <span class="badge badge-fail">✗ FAIL</span>
+                            {% else %}
+                            <span class="badge badge-error">⚠ ERROR</span>
+                            {% endif %}
+                        </td>
+                        <td class="mono">{{ t.latency_ms }} ms</td>
+                        <td class="details-cell">{{ t.details or "—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Latency Trend Chart -->
+        {% if all_runs|length > 1 %}
+        <p class="section-title">Tendance latence (avg / p95) — {{ all_runs|length }} derniers runs</p>
+        <div class="chart-wrap">
+            <canvas id="latencyChart" height="80"></canvas>
+        </div>
+        {% endif %}
+
+        <!-- History Table -->
+        {% if history %}
+        <p class="section-title">Historique des runs</p>
+        <div class="card">
+            <div class="card-header">
+                <h2>📜 Historique ({{ history|length }} runs précédents)</h2>
+            </div>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Timestamp</th>
+                        <th>PASS</th>
+                        <th>FAIL</th>
+                        <th>Taux erreur</th>
+                        <th>Lat. moy.</th>
+                        <th>p95</th>
+                        <th>Dispo.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in history %}
+                    <tr>
+                        <td class="mono">#{{ r.id }}</td>
+                        <td><span class="ts">{{ r.timestamp | replace("T"," ") | truncate(19, True, '') }}</span></td>
+                        <td class="text-pass fw-600">{{ r.passed }}</td>
+                        <td class="fw-600 {% if r.failed > 0 %}text-fail{% else %}text-muted{% endif %}">
+                            {{ r.failed }}</td>
+                        <td class="mono">{{ "%.1f"|format(r.error_rate * 100) }}%</td>
+                        <td class="mono">{{ r.latency_avg|int }} ms</td>
+                        <td class="mono">{{ r.latency_p95|int }} ms</td>
+                        <td class="mono">
+                            {% set pct_avail = (r.availability * 100)|int %}
+                            <span
+                                class="{% if pct_avail >= 80 %}text-pass{% elif pct_avail >= 50 %}text-error{% else %}text-fail{% endif %}">
+                                {{ pct_avail }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% endif %}
+    </main>
+
+    <footer>
+        API Test Dashboard · ABID Mouaad · Frankfurter API ·
+        <a href="https://www.frankfurter.app/docs/" target="_blank" class="text-accent">Docs API</a>
+    </footer>
+
+    <!-- ── Chart.js via CDN ─────────────────────────── -->
+    {% if all_runs|length > 1 %}
+    <script id="runs-data" type="application/json">{{ all_runs | tojson | safe }}</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const runsDataElement = document.getElementById('runs-data');
+        const runs = JSON.parse(runsDataElement.textContent);
+        // Du plus ancien au plus récent pour le graphe
+        const sorted = [...runs].reverse();
+        const labels = sorted.map(r => '#' + r.id);
+        const avgData = sorted.map(r => r.latency_avg);
+        const p95Data = sorted.map(r => r.latency_p95);
+
+        const ctx = document.getElementById('latencyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Latence moy. (ms)',
+                        data: avgData,
+                        borderColor: '#58a6ff',
+                        backgroundColor: 'rgba(88,166,255,.08)',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.3,
+                        fill: true,
+                    },
+                    {
+                        label: 'Latence p95 (ms)',
+                        data: p95Data,
+                        borderColor: '#bc8cff',
+                        backgroundColor: 'rgba(188,140,255,.05)',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.3,
+                        fill: false,
+                        borderDash: [5, 4],
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { labels: { color: '#8b949e', font: { family: 'Inter' } } }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#21262d' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e', callback: v => v + ' ms' },
+                        grid: { color: '#21262d' }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+
+    <script>
+        // Set widths for progress bars from data-pct
+        document.querySelectorAll('[data-pct]').forEach(el => {
+            el.style.width = el.getAttribute('data-pct') + '%';
+        });
+    </script>
+
+</body>
+
+</html>
