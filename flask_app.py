@@ -35,6 +35,18 @@ def index():
 
 
 # ─────────────────────────────────────────────
+#  /consignes  — Page des instructions
+# ─────────────────────────────────────────────
+@app.get("/consignes")
+def consignes():
+    # On peut passer all_runs pour le theme toggle si besoin, 
+    # mais ici on en a surtout besoin pour le dashboard.
+    from storage import list_runs
+    runs = list_runs(limit=1)
+    return render_template("consignes.html", all_runs=runs)
+
+
+# ─────────────────────────────────────────────
 #  /run  — Déclenche un run de tests
 # ─────────────────────────────────────────────
 @app.get("/run")

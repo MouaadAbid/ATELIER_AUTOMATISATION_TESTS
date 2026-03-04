@@ -25,6 +25,17 @@
             --grad: linear-gradient(135deg, #1f6feb 0%, #bc8cff 100%);
         }
 
+        body.light-theme {
+            --bg: #f6f8fa;
+            --surface: #ffffff;
+            --surface2: #f3f4f6;
+            --border: #d0d7de;
+            --text: #1f2328;
+            --muted: #656d76;
+            --accent: #0969da;
+            --accent2: #8250df;
+        }
+
         .text-pass {
             color: var(--pass);
         }
@@ -122,22 +133,95 @@
         .btn-run {
             background: var(--grad);
             color: #fff;
-            box-shadow: 0 0 16px rgba(88, 166, 255, .25);
+            box-shadow: 0 4px 15px rgba(31, 111, 235, 0.3);
+            border: none;
         }
 
         .btn-run:hover {
-            opacity: .85;
-            transform: translateY(-1px);
+            opacity: .9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(31, 111, 235, 0.4);
         }
 
         .btn-outline {
             border: 1px solid var(--border);
             color: var(--muted);
+            background: transparent;
         }
 
         .btn-outline:hover {
             color: var(--text);
             border-color: var(--accent);
+            background: var(--surface2);
+        }
+
+        .btn-health {
+            border: 1px solid var(--pass);
+            color: var(--pass);
+            background: rgba(63, 185, 80, 0.05);
+        }
+
+        .btn-health:hover {
+            background: rgba(63, 185, 80, 0.1);
+            box-shadow: 0 0 10px rgba(63, 185, 80, 0.2);
+            color: var(--pass);
+            border-color: var(--pass);
+        }
+
+        .theme-toggle {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all .2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--border);
+        }
+
+        /* ── Consignes ── */
+        .consignes-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .consignes-card h2 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .consignes-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .consignes-item {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .consignes-check {
+            color: var(--pass);
+            font-weight: bold;
         }
 
         /* ── Main Layout ── */
@@ -423,8 +507,10 @@
             </div>
         </div>
         <nav>
+            <button id="theme-btn" class="theme-toggle" title="Changer le thème">🌓</button>
+            <a href="/consignes" class="btn-outline">📝 Consignes</a>
             <a href="/run" class="btn-run">▶ Lancer un Run</a>
-            <a href="/health" class="btn-outline" target="_blank">💚 Health</a>
+            <a href="/health" class="btn-health" target="_blank">💚 Health</a>
             <a href="/export" class="btn-outline">⬇ Export JSON</a>
         </nav>
     </header>
@@ -658,6 +744,21 @@
         // Set widths for progress bars from data-pct
         document.querySelectorAll('[data-pct]').forEach(el => {
             el.style.width = el.getAttribute('data-pct') + '%';
+        });
+
+        // Theme Toggle Logic
+        const themeBtn = document.getElementById('theme-btn');
+        const body = document.body;
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            body.classList.add('light-theme');
+        }
+
+        themeBtn.addEventListener('click', () => {
+            body.classList.toggle('light-theme');
+            const isLight = body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
         });
     </script>
 
